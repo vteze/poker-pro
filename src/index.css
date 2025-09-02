@@ -115,7 +115,7 @@
   }
   
   .stat-card {
-    @apply bg-gradient-dark border border-border rounded-xl p-6 shadow-elegant;
+    @apply gradient-dark border border-border rounded-xl p-6 shadow-elegant;
   }
 }
 
