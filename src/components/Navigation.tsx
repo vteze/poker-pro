@@ -1,5 +1,5 @@
-import { Home, BookOpen, Calculator, TrendingUp, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Home, BookOpen, Calculator, TrendingUp, Brain, User } from "lucide-react";
 
 interface NavigationProps {
   currentTab: string;
@@ -12,12 +12,13 @@ const Navigation = ({ currentTab, onTabChange }: NavigationProps) => {
     { id: "guide", label: "Mãos", icon: BookOpen },
     { id: "calculator", label: "Calc", icon: Calculator },
     { id: "history", label: "Histórico", icon: TrendingUp },
-    { id: "coach", label: "Coach", icon: Brain }
+    { id: "coach", label: "Coach", icon: Brain },
+    { id: "profile", label: "Perfil", icon: User }
   ];
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-t border-border p-2">
-      <div className="grid grid-cols-5 gap-1 max-w-md mx-auto">
+      <div className="grid grid-cols-6 gap-1 max-w-md mx-auto">
         {tabs.map((tab) => (
           <Button
             key={tab.id}
@@ -25,8 +26,8 @@ const Navigation = ({ currentTab, onTabChange }: NavigationProps) => {
             size="sm"
             onClick={() => onTabChange(tab.id)}
             className={`flex-col h-12 p-1 text-xs ${
-              currentTab === tab.id 
-                ? "gradient-gold text-primary-foreground shadow-glow" 
+              currentTab === tab.id
+                ? "gradient-gold text-primary-foreground shadow-glow"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
