@@ -6,6 +6,7 @@ import HandGuide from "@/components/HandGuide";
 import Calculator from "@/components/Calculator";
 import History from "@/components/History";
 import Coach from "@/components/Coach";
+import Profile from "@/components/Profile";
 import Navigation from "@/components/Navigation";
 
 const Index = () => {
@@ -41,6 +42,8 @@ const Index = () => {
         return <History />;
       case "coach":
         return <Coach />;
+      case "profile":
+        return <Profile />;
       default:
         return <Dashboard />;
     }
