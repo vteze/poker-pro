@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Home, BookOpen, Calculator, TrendingUp, Brain, User } from "lucide-react";
 
 interface NavigationProps {
   currentTab: string;
@@ -7,12 +8,12 @@ interface NavigationProps {
 
 const Navigation = ({ currentTab, onTabChange }: NavigationProps) => {
   const tabs = [
-    { id: "dashboard", label: "Início" },
-    { id: "guide", label: "Mãos" },
-    { id: "calculator", label: "Calc" },
-    { id: "history", label: "Histórico" },
-    { id: "coach", label: "Coach" },
-    { id: "profile", label: "Perfil" }
+    { id: "dashboard", label: "Início", icon: Home },
+    { id: "guide", label: "Mãos", icon: BookOpen },
+    { id: "calculator", label: "Calc", icon: Calculator },
+    { id: "history", label: "Histórico", icon: TrendingUp },
+    { id: "coach", label: "Coach", icon: Brain },
+    { id: "profile", label: "Perfil", icon: User }
   ];
 
   return (
@@ -30,6 +31,7 @@ const Navigation = ({ currentTab, onTabChange }: NavigationProps) => {
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
+            <tab.icon className="h-4 w-4 mb-1" />
             {tab.label}
           </Button>
         ))}

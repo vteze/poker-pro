@@ -5,11 +5,29 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePokerSessions } from "@/hooks/usePokerSessions";
 import NewSessionDialog from "@/components/NewSessionDialog";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const { sessions, stats, loading } = usePokerSessions();
   const { toast } = useToast();
+  const [displayName, setDisplayName] = useState("");
+
+  useEffect(() => {
+    const fetchDisplayName = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("user_id", user.id)
+        .single();
+      if (data?.display_name) {
+        setDisplayName(data.display_name);
+      }
+    };
+    fetchDisplayName();
+  }, [user]);
 
   const handleSignOut = async () => {
     try {
@@ -92,7 +110,7 @@ const Dashboard = () => {
             PokerPro Coach
           </h1>
           <p className="text-muted-foreground">
-            Bem-vindo, {user?.email?.split('@')[0]}!
+            Bem-vindo, {displayName || user?.email?.split('@')[0]}!
           </p>
         </div>
         <Button 
