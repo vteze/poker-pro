@@ -2,20 +2,28 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { questions } from "@/data/coachQuestions";
+import { usePokerSessions } from "@/hooks/usePokerSessions";
 
 const Coach = () => {
   const [questionOrder] = useState(() => [...questions].sort(() => Math.random() - 0.5));
   const [currentQuiz, setCurrentQuiz] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
+  const { stats } = usePokerSessions();
 
-  const stats = [
-    { label: "VPIP", value: "25%" },
-    { label: "PFR", value: "20%" },
-    { label: "3-Bet", value: "7%" },
-    { label: "Aggression", value: "2.3" },
-    { label: "Hands Jogadas", value: "1200" },
-    { label: "Winrate (bb/100)", value: "4.2" }
+  const coachStats = [
+    { label: "VPIP", value: `${stats.avgVpip.toFixed(1)}%` },
+    { label: "PFR", value: `${stats.avgPfr.toFixed(1)}%` },
+    { label: "Aggression", value: stats.avgAggression.toFixed(1) },
+    { label: "Hands Jogadas", value: stats.totalHands.toString() },
+    {
+      label: "Winrate (bb/100)",
+      value:
+        stats.totalHands > 0
+          ? (stats.totalProfit / (stats.totalHands / 100)).toFixed(2)
+          : "0",
+    },
+    { label: "Sessões", value: stats.sessionCount.toString() },
   ];
 
   const tips = [
@@ -65,7 +73,7 @@ const Coach = () => {
       <div className="space-y-3">
         <h2 className="text-lg font-semibold">Estatísticas do Jogador</h2>
         <div className="grid grid-cols-2 gap-3">
-          {stats.map((stat, idx) => (
+          {coachStats.map((stat, idx) => (
             <Card key={idx} className="p-4">
               <p className="text-sm font-semibold">{stat.label}</p>
               <p className="text-lg">{stat.value}</p>
