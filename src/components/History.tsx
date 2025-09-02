@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { TrendingUp, TrendingDown, Target, Clock, Users, DollarSign, BarChart3 } from "lucide-react";
 import { usePokerSessions } from "@/hooks/usePokerSessions";
 import NewSessionDialog from "@/components/NewSessionDialog";
+import SessionActions from "@/components/SessionActions";
 
 const History = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("all");
@@ -235,10 +236,15 @@ const History = () => {
                       <div className="flex items-center gap-2">
                         <h3 className="font-semibold">{session.session_type}</h3>
                       </div>
-                      <div className={`font-semibold ${
-                        Number(session.profit) >= 0 ? 'text-profit' : 'text-loss'
-                      }`}>
-                        {Number(session.profit) >= 0 ? '+' : ''}${Number(session.profit).toFixed(2)}
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={`font-semibold ${
+                            Number(session.profit) >= 0 ? 'text-profit' : 'text-loss'
+                          }`}
+                        >
+                          {Number(session.profit) >= 0 ? '+' : ''}${Number(session.profit).toFixed(2)}
+                        </div>
+                        <SessionActions session={session} />
                       </div>
                     </div>
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,16 +18,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { usePokerSessions } from "@/hooks/usePokerSessions";
+import { PokerSession, usePokerSessions } from "@/hooks/usePokerSessions";
 import { useToast } from "@/hooks/use-toast";
 import { Target } from "lucide-react";
 
 interface NewSessionDialogProps {
   children?: React.ReactNode;
+  session?: PokerSession;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-const NewSessionDialog = ({ children }: NewSessionDialogProps) => {
-  const [open, setOpen] = useState(false);
+const NewSessionDialog = ({
+  children,
+  session,
+  open: openProp,
+  onOpenChange,
+}: NewSessionDialogProps) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = openProp ?? internalOpen;
+  const setOpen = onOpenChange ?? setInternalOpen;
+  const isEditing = !!session;
   const [sessionType, setSessionType] = useState("");
   const [profit, setProfit] = useState("");
   const [duration, setDuration] = useState("");
@@ -38,8 +49,21 @@ const NewSessionDialog = ({ children }: NewSessionDialogProps) => {
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { addSession } = usePokerSessions();
+  const { addSession, updateSession } = usePokerSessions();
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (session && open) {
+      setSessionType(session.session_type);
+      setProfit(session.profit.toString());
+      setDuration(session.duration_minutes.toString());
+      setHands(session.hands_played.toString());
+      setVpip(session.vpip?.toString() ?? "");
+      setPfr(session.pfr?.toString() ?? "");
+      setAggression(session.aggression?.toString() ?? "");
+      setNotes(session.notes ?? "");
+    }
+  }, [session, open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,31 +81,38 @@ const NewSessionDialog = ({ children }: NewSessionDialogProps) => {
         notes: notes || undefined,
       };
 
-      const result = await addSession(sessionData);
-      
+      const result = isEditing
+        ? await updateSession(session!.id, sessionData)
+        : await addSession(sessionData);
+
       if (result) {
         toast({
-          title: "Sessão registrada!",
-          description: "Sua sessão foi registrada com sucesso.",
+          title: isEditing ? "Sessão atualizada!" : "Sessão registrada!",
+          description: isEditing
+            ? "Os dados da sessão foram atualizados."
+            : "Sua sessão foi registrada com sucesso.",
         });
-        
-        // Reset form
-        setSessionType("");
-        setProfit("");
-        setDuration("");
-        setHands("");
-        setVpip("");
-        setPfr("");
-        setAggression("");
-        setNotes("");
+
+        if (!isEditing) {
+          setSessionType("");
+          setProfit("");
+          setDuration("");
+          setHands("");
+          setVpip("");
+          setPfr("");
+          setAggression("");
+          setNotes("");
+        }
         setOpen(false);
       } else {
-        throw new Error("Erro ao registrar sessão");
+        throw new Error(isEditing ? "Erro ao atualizar sessão" : "Erro ao registrar sessão");
       }
     } catch (error) {
       toast({
         title: "Erro",
-        description: "Não foi possível registrar a sessão. Tente novamente.",
+        description: isEditing
+          ? "Não foi possível atualizar a sessão. Tente novamente."
+          : "Não foi possível registrar a sessão. Tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -91,19 +122,25 @@ const NewSessionDialog = ({ children }: NewSessionDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {children || (
+      {children ? (
+        <DialogTrigger asChild>{children}</DialogTrigger>
+      ) : !session ? (
+        <DialogTrigger asChild>
           <Button className="gradient-gold text-primary-foreground font-semibold shadow-glow">
             <Target className="h-5 w-5 mr-2" />
             Nova Sessão
           </Button>
-        )}
-      </DialogTrigger>
+        </DialogTrigger>
+      ) : null}
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Registrar Nova Sessão</DialogTitle>
+          <DialogTitle>
+            {isEditing ? "Editar Sessão" : "Registrar Nova Sessão"}
+          </DialogTitle>
           <DialogDescription>
-            Registre os detalhes da sua sessão de poker
+            {isEditing
+              ? "Atualize os detalhes da sessão"
+              : "Registre os detalhes da sua sessão de poker"}
           </DialogDescription>
         </DialogHeader>
         
@@ -235,7 +272,11 @@ const NewSessionDialog = ({ children }: NewSessionDialogProps) => {
               className="flex-1 gradient-gold text-primary-foreground font-semibold"
               disabled={loading}
             >
-              {loading ? "Salvando..." : "Registrar"}
+              {loading
+                ? "Salvando..."
+                : isEditing
+                ? "Salvar"
+                : "Registrar"}
             </Button>
           </div>
         </form>
