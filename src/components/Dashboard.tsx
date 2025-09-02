@@ -17,6 +17,13 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDisplayName = async () => {
       if (!user) return;
+
+      // Prefer the value stored on the auth user's metadata
+      if (user.user_metadata?.display_name) {
+        setDisplayName(user.user_metadata.display_name);
+        return;
+      }
+
       const { data } = await supabase
         .from("profiles")
         .select("display_name")

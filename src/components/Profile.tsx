@@ -32,6 +32,12 @@ const Profile = () => {
       user_id: user.id,
       display_name: displayName,
     });
+
+    // Update auth user metadata so other components receive the new name
+    await supabase.auth.updateUser({
+      data: { display_name: displayName },
+    });
+
     setLoading(false);
   };
 
