@@ -29,6 +29,11 @@ interface PokerSessionsContextValue {
   addSession: (
     sessionData: Omit<PokerSession, "id" | "created_at">
   ) => Promise<PokerSession | null>;
+  updateSession: (
+    id: string,
+    sessionData: Omit<PokerSession, "id" | "created_at">
+  ) => Promise<PokerSession | null>;
+  deleteSession: (id: string) => Promise<boolean>;
   refetch: () => Promise<void>;
   stats: {
     totalProfit: number;
@@ -100,6 +105,57 @@ export const PokerSessionsProvider = ({ children }: { children: ReactNode }) => 
     }
   };
 
+  const updateSession = async (
+    id: string,
+    sessionData: Omit<PokerSession, "id" | "created_at">
+  ) => {
+    if (!user) return null;
+
+    try {
+      const { data, error } = await supabase
+        .from("poker_sessions")
+        .update(sessionData)
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error updating session:", error);
+        return null;
+      }
+
+      setSessions((prev) =>
+        prev.map((session) => (session.id === id ? data : session))
+      );
+      return data;
+    } catch (error) {
+      console.error("Error updating session:", error);
+      return null;
+    }
+  };
+
+  const deleteSession = async (id: string) => {
+    if (!user) return false;
+
+    try {
+      const { error } = await supabase
+        .from("poker_sessions")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        console.error("Error deleting session:", error);
+        return false;
+      }
+
+      setSessions((prev) => prev.filter((session) => session.id !== id));
+      return true;
+    } catch (error) {
+      console.error("Error deleting session:", error);
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchSessions();
   }, [fetchSessions]);
@@ -134,7 +190,15 @@ export const PokerSessionsProvider = ({ children }: { children: ReactNode }) => 
 
   return (
     <PokerSessionsContext.Provider
-      value={{ sessions, loading, addSession, refetch: fetchSessions, stats }}
+      value={{
+        sessions,
+        loading,
+        addSession,
+        updateSession,
+        deleteSession,
+        refetch: fetchSessions,
+        stats,
+      }}
     >
       {children}
     </PokerSessionsContext.Provider>

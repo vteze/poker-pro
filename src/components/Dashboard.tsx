@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePokerSessions } from "@/hooks/usePokerSessions";
 import NewSessionDialog from "@/components/NewSessionDialog";
+import SessionActions from "@/components/SessionActions";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -100,13 +101,7 @@ const Dashboard = () => {
     }
   ];
 
-  const recentSessions = sessions.slice(0, 4).map(session => ({
-    id: session.id,
-    type: session.session_type,
-    profit: Number(session.profit),
-    duration: formatTime(session.duration_minutes),
-    hands: session.hands_played
-  }));
+  const recentSessions = sessions.slice(0, 4);
 
   return (
     <div className="min-h-screen bg-background p-4 space-y-6">
@@ -223,35 +218,41 @@ const Dashboard = () => {
             </Card>
           ) : (
             recentSessions.map((session) => (
-            <Card key={session.id} className="hand-card">
-              <CardContent className="p-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">{session.type}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {session.duration} • {session.hands} mãos
-                    </p>
-                  </div>
-                  <div className={`text-right ${
-                    session.profit > 0 ? 'text-profit' : 'text-loss'
-                  }`}>
-                    <p className="font-semibold">
-                      {session.profit > 0 ? '+' : ''}${session.profit}
-                    </p>
-                    <div className="flex items-center gap-1">
-                      {session.profit > 0 ? 
-                        <TrendingUp className="h-3 w-3" /> : 
-                        <TrendingDown className="h-3 w-3" />
-                      }
-                      <span className="text-xs">
-                        {session.profit > 0 ? 'Lucro' : 'Perda'}
-                      </span>
+              <Card key={session.id} className="hand-card">
+                <CardContent className="p-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">{session.session_type}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {formatTime(session.duration_minutes)} • {session.hands_played} mãos
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`text-right ${
+                          Number(session.profit) > 0 ? 'text-profit' : 'text-loss'
+                        }`}
+                      >
+                        <p className="font-semibold">
+                          {Number(session.profit) > 0 ? '+' : ''}${Number(session.profit)}
+                        </p>
+                        <div className="flex items-center gap-1">
+                          {Number(session.profit) > 0 ? (
+                            <TrendingUp className="h-3 w-3" />
+                          ) : (
+                            <TrendingDown className="h-3 w-3" />
+                          )}
+                          <span className="text-xs">
+                            {Number(session.profit) > 0 ? 'Lucro' : 'Perda'}
+                          </span>
+                        </div>
+                      </div>
+                      <SessionActions session={session} />
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          )))}
+                </CardContent>
+              </Card>
+            )))}
         </div>
       </div>
     </div>
